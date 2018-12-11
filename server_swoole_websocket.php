@@ -82,7 +82,9 @@ class Server
 //        var_dump(json_decode($request->post['info'], true));
         foreach ($this->webSocketServ->connections as $fd) {
             try {
-                @$this->webSocketServ->push($fd, $request->post['info']);
+                if($this->webSocketServ->isEstablished($fd)){
+                   $this->webSocketServ->push($fd, $request->post['info']);
+                }
             } catch (Exception $e) {
 
             }

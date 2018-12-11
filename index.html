@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>webSocket客户端</title>
+</head>
+<body>
+<script>
+    let wsUrl = "ws://192.168.74.134:8080"
+    let ws = new WebSocket(wsUrl) // 建立请求连接
+
+    ws.onopen = function (evt) {
+        heartCheck.start();
+    }
+
+    ws.onmessage = function (evt) { // 接收服务端数据
+        console.log(evt);
+        heartCheck.start();
+    }
+
+    ws.onclose = function (evt) {
+        console.log("地球与三体的连接已中断")
+    }
+
+    ws.onerror = function (evt, e) {
+        let message = String(evt.data)
+        console.log("连接出错：" + message)
+    }
+
+    window.onbeforeunload = function () {
+        ws.close();
+    }
+
+    var heartCheck = {
+        timeout: 1000,
+        timeoutObj: null,
+        serverTimeoutObj: null,
+        start: function () {
+            console.log('start');
+            var self = this;
+            this.timeoutObj && clearTimeout(this.timeoutObj);
+            this.serverTimeoutObj && clearTimeout(this.serverTimeoutObj);
+            this.timeoutObj = setTimeout(function () {
+                ws.send("{'action':'Ping'}");
+                self.serverTimeoutObj = setTimeout(function () {
+                    ws.close();
+                }, self.timeout);
+
+            }, this.timeout)
+        }
+    }
+</script>
+
+</body>
+</html>
